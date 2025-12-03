@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Joyeux anniversaire 🎉</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#fecaca">
+  <link rel="icon" href="icon-192.png">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #ffe6f0, #fff7d6 40%, #ffeaf7 100%);
+      color: #1f2933;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    /* ---- ÉCRAN D'INTRO ---- */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #ffe7f3, #fff2d8 60%, #ffe6f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .overlay-inner {
+      text-align: center;
+      max-width: 600px;
+      padding: 30px 25px;
+      border-radius: 22px;
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      box-shadow: 0 0 30px rgba(248, 191, 210, 0.9);
+      background: radial-gradient(circle at top, rgba(252, 231, 243, 0.95), rgba(255, 247, 222, 0.96));
+      backdrop-filter: blur(6px);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .overlay-title {
+      font-size: 2.1rem;
+      margin-bottom: 12px;
+      text-shadow:
+        0 0 10px rgba(252, 211, 77, 0.9),
+        0 0 16px rgba(248, 113, 113, 0.8);
+    }
+
+    .overlay-sub {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #f97373;
+      margin-bottom: 25px;
+    }
+
+    .start-btn {
+      border: none;
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97373, #fb923c, #facc15);
+      color: #111827;
+      box-shadow:
+        0 0 16px rgba(249, 115, 129, 0.9),
+        0 0 22px rgba(252, 211, 77, 0.8);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow:
+        0 0 22px rgba(249, 115, 129, 1),
+        0 0 28px rgba(252, 211, 77, 1);
+    }
+
+    .start-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow:
+        0 0 12px rgba(249, 115, 129, 0.8),
+        0 0 18px rgba(252, 211, 77, 0.8);
+    }
+
+    /* ---- JEU ---- */
+
+    .game {
+      text-align: center;
+      max-width: 900px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .game.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: #111827;
+      text-shadow:
+        0 0 10px rgba(252, 211, 77, 0.9),
+        0 0 16px rgba(252, 165, 165, 0.8);
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      width: 200px;
+      height: 260px;
+      perspective: 1000px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+      animation: float 4s ease-in-out infinite;
+      position: relative;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 0.8s;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.04);
+      box-shadow:
+        0 14px 26px rgba(248, 113, 113, 0.6),
+        0 0 20px rgba(251, 191, 36, 0.9);
+    }
+
+    .card.disabled {
+      opacity: 0.4;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+      animation: none;
+    }
+
+    .card.selected {
+      transform: translateY(-10px) scale(1.08);
+      box-shadow:
+        0 0 28px rgba(251, 146, 60, 0.95),
+        0 0 34px rgba(250, 204, 21, 0.9);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.7s ease;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      box-shadow: 0 18px 35px rgba(248, 113, 113, 0.5);
+      text-align: center;
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, #fecaca, #fed7aa, #fef08a);
+      border: 2px solid rgba(248, 250, 252, 0.9);
+    }
+
+    .card-front .icon {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 12px rgba(248, 250, 252, 0.9);
+    }
+
+    .card-front span {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, #f97373, #fb923c, #fde68a);
+      transform: rotateY(180deg);
+      border: 2px solid rgba(254, 243, 199, 0.9);
+      gap: 12px;
+      box-shadow:
+        0 0 22px rgba(248, 250, 252, 0.9),
+        0 0 28px rgba(250, 204, 21, 0.9);
+    }
+
+    .gift-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111827;
+      text-shadow:
+        0 0 10px rgba(254, 243, 199, 0.9),
+        0 0 16px rgba(248, 250, 252, 0.9);
+    }
+
+    .gift-text {
+      font-size: 1rem;
+      color: #111827;
+    }
+
+    .final-message {
+      font-size: 1.1rem;
+      color: #b45309;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: 0.4s ease;
+      text-shadow:
+        0 0 12px rgba(254, 243, 199, 0.9),
+        0 0 18px rgba(251, 191, 36, 0.9);
+    }
+
+    .final-message.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+
+    /* Confettis */
+    .confetti {
+      position: fixed;
+      top: -40px;
+      animation: fall 2.7s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+      100% {
+        transform: translateY(110vh) translateX(40px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: translateY(-10px) scale(1.05); }
+      50% { transform: translateY(-12px) scale(1.09); }
+      100% { transform: translateY(-10px) scale(1.05); }
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 650px) {
+      h1 { font-size: 1.8rem; }
+      .subtitle { font-size: 0.95rem; }
+
+      .cards {
+        gap: 18px;
+      }
+
+      .card {
+        width: 150px;
+        height: 210px;
+      }
+
+      .overlay-inner {
+        padding: 22px 18px;
+      }
+
+      .overlay-title {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUDIO (optionnel : mets un MP3 genre "theme.mp3" à côté du fichier) -->
+  <audio id="music" src="birthday.mp3.mp3" loop></audio>
+
+  <!-- ÉCRAN D'INTRO -->
+  <div class="overlay" id="intro">
+    <div class="overlay-inner">
+      <div class="overlay-title">🎂 Anniversaire de Nounours Love 🎂</div>
+      <p class="overlay-sub">
+        Trois cartes, une surprises…<br />
+        Clique pour découvrir ton cadeau de tes 33 ans🥳
+      </p>
+      <p class="tagline">
+        Petit jeu codé avec amour par ta petite sœur développeuse 🐼
+      </p>
+      <button class="start-btn" id="start-btn">Commencer le jeu 🎉</button>
+    </div>
+  </div>
+
+  <!-- JEU -->
+  <div class="game" id="game">
+    <h1>Joyeux anniversaire Nounours Love 🎉</h1>
+    <p class="subtitle">Clique sur une des 3 cartes pour découvrir ton cadeau… 👀</p>
+
+    <div class="cards">
+      <!-- Carte 1 : Escape Game Batman -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <div class="icon">🎈</div>
+            <span>Carte 1</span>
+          </div>
+          <div class="card-face card-back">
+            <span class="gift-title">Escape Game Batman 🦇</span>
+            <span class="gift-text">
+              Une session Escape Game dans l'univers du Chevalier Noir.  
+              Prépare-toi à sauver Gotham avec une équipe de choc !
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 2 : GTA Edition 2026 -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <div class="icon">🎁</div>
+            <span>Carte 2</span>
+          </div>
+          <div class="card-face card-back">
+            <span class="gift-title">GTA – Édition 2026 🚗🔥</span>
+            <span class="gift-text">
+              Le jeu le plus attendu. L'édition 2026 est pour toi, chauffeur officiel du chaos 😎
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 3 : Resto en famille -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <div class="icon">🎂</div>
+            <span>Carte 3</span>
+          </div>
+          <div class="card-face card-back">
+            <span class="gift-title">Un resto en famille 🍽️</span>
+            <span class="gift-text">
+              Le restaurant de ton choix, et on y va tous ensemble.  
+              Ambiance bonne bouffe & love ❤️
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p id="final-message" class="final-message">
+      🎉 Le cadeau que tu as retourné… tu le gagnes vraiment. Promis. 🎉
+    </p>
+    <p class="hint">PS : Tu ne peux cliquer qu'une seule fois… choisis bien 👀</p>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll(".card");
+    const finalMessage = document.getElementById("final-message");
+    const intro = document.getElementById("intro");
+    const game = document.getElementById("game");
+    const startBtn = document.getElementById("start-btn");
+    const music = document.getElementById("music");
+    let alreadyChosen = false;
+
+    // Démarrage : click sur "Commencer le jeu"
+    startBtn.addEventListener("click", () => {
+      intro.classList.add("hidden");
+      game.classList.add("visible");
+
+      if (music && music.play) {
+        music.play().catch(() => {});
+      }
+    });
+
+    // Gestion des cartes
+    cards.forEach((card) => {
+      card.addEventListener("click", () => {
+        if (alreadyChosen) return;
+
+        alreadyChosen = true;
+        card.classList.add("flipped", "selected");
+
+        cards.forEach((other) => {
+          if (other !== card) other.classList.add("disabled");
+        });
+
+        finalMessage.classList.add("visible");
+        createConfetti();
+      });
+    });
+
+    function createConfetti() {
+      const emojis = ["🎉", "🎁", "✨", "🎂", "🎈", "🍽️", "❤️"];
+      for (let i = 0; i < 45; i++) {
+        const c = document.createElement("span");
+        c.className = "confetti";
+        c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.fontSize = 16 + Math.random() * 16 + "px";
+        c.style.animationDelay = Math.random() * 0.4 + "s";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3000);
+      }
+    }
+  </script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .catch((err) => console.error("SW error", err));
+    });
+  }
+</script>
+</body>
+</html>

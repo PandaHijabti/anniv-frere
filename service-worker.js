@@ -4,8 +4,8 @@ const ASSETS = [
   "index.html",
   "manifest.json",
   "birthday.mp3",
-  "icon-192.png",
-  "icon-512.png"
+  "ICONE 1.png",
+  "ICONE 2.png"
 ];
 
 // Installation : on met les fichiers principaux en cache
